@@ -344,8 +344,9 @@ def find_cheats(**kwargs):
                     output_filename = re.sub("\s|#|:|/|'", "_", headers.split('#')[1].strip()) + '.md'
                     try:
                         with io.open(output_filename, "a", encoding="utf-8") as text_file:
-                            print("{h}{b}".format(h=colors.purple(headers), b=colors.green(body)))
-                            text_file.write("{h}{b}".format(h=headers, b=body))
+                            print("{h}\n{b}".format(h=colors.purple(headers), b=colors.green(body)))
+                            text_file.write("{h}\n{b}".format(h=headers, b=body))
+                            matched_topics.append(headers)
                     except Exception:
                         logger.error('Failed to write {h} ... skipping'.format(h=headers))
                 else:
@@ -356,8 +357,9 @@ def find_cheats(**kwargs):
                         logger.error('Failed to process topic ... skipping')
                         continue
     end_time = time.time()
-    logger.info('Retrieved %s topic(s) in %0.2f seconds' % (
-        len(matched_topics), (end_time - start_time))
+    action = "Wrote" if explode else "Retrieved"
+    logger.info('%s %s topic(s) in %0.2f seconds' % (
+        action, len(matched_topics), (end_time - start_time))
     )
 
 
