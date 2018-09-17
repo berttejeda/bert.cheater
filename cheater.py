@@ -179,7 +179,8 @@ def cli(**kwargs):
     """
     global config_file, debug, verbose, loglevel, logger
     # Overriding globals
-    if kwargs.get('config'):
+    configfile_p = kwargs.get('config')
+    if configfile_p:
         config_file = os.path.realpath(os.path.expanduser(kwargs['config']))
     debug = kwargs['debug']
     logfilename = kwargs['log']
@@ -204,7 +205,7 @@ def cli(**kwargs):
     streamhandler = logging.StreamHandler()
     streamhandler.setFormatter(logging.Formatter("[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s"))
     logger.addHandler(streamhandler)
-    if not os.path.exists(config_file):
+    if not os.path.exists(config_file) and configfile_p:
         logger.warning("Couln't find %s" % colors.yellow(config_file))
     return 0
 
@@ -355,8 +356,9 @@ def find_cheats(**kwargs):
                         logger.error('Failed to process topic ... skipping')
                         continue
     end_time = time.time()
-    logger.info('''"Status": "Complete", "Result": "Retrieved %s topic(s) in %0.2f seconds"
-    ''' % (len(matched_topics), (end_time - start_time)))
+    logger.info('Retrieved %s topic(s) in %0.2f seconds' % (
+        len(matched_topics), (end_time - start_time))
+    )
 
 
 if __name__ == '__main__':
