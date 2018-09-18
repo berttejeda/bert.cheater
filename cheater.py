@@ -14,10 +14,20 @@ import re
 import sys
 import time
 
+
 if sys.version_info[0] == 2:
     from ConfigParser import RawConfigParser
 if sys.version_info[0] >= 3:
     from configparser import RawConfigParser
+
+# Adjust system path accordingly
+if sys.platform in ['win32', 'cygwin']:
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    sys.path.append(project_root + '\\lib')
+else:
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(project_root + '/lib')
+# Import third-party modules
 try:
     import click
     import requests
@@ -67,11 +77,6 @@ class AsciiColors:
 
     def yellow(self, string):
         return self.colorize('yellow', string)
-
-
-# Project
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(project_root + '/lib')
 
 # Private variables
 __author__ = 'etejeda'
@@ -203,7 +208,7 @@ def cli(**kwargs):
         filehandler.setFormatter(formatter)
         logger.addHandler(filehandler)
     streamhandler = logging.StreamHandler()
-    streamhandler.setFormatter(logging.Formatter("[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s"))
+    streamhandler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s"))
     logger.addHandler(streamhandler)
     if not os.path.exists(config_file) and configfile_p:
         logger.warning("Couln't find %s" % colors.yellow(config_file))
