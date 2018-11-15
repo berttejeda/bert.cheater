@@ -1,0 +1,6 @@
+search:
+  paths:
+    - C:\Users\myusername\Documents\workspace\md
+  filters:
+    - md
+    - txt
