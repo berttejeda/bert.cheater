@@ -247,8 +247,12 @@ def find_cheats(**kwargs):
     explode = True if kwargs['explode_topics'] else False
     if kwargs.get('cheatfile'):
         cheatfiles = []
-        for cf in kwargs['cheatfile']:
-            cheatfiles += glob.glob(os.path.expanduser(cf), recursive=True)
+        if sys.version_info[0] == 2:
+            for cf in kwargs['cheatfile']:
+                cheatfiles += glob.glob(os.path.expanduser(cf))
+        if sys.version_info[0] >= 3:
+            for cf in kwargs['cheatfile']:
+                cheatfiles += glob.glob(os.path.expanduser(cf), recursive=True)
     else:
         cheatfiles = []
     cheatfile_paths = kwargs['cheatfile_path']
