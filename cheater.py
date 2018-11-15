@@ -4,8 +4,7 @@
 """
 # Imports
 from __future__ import print_function
-from collections import OrderedDict
-import copy
+import glob
 import io
 import logging
 import logging.handlers
@@ -13,12 +12,8 @@ import os
 import re
 import sys
 import time
+import yaml
 
-
-if sys.version_info[0] == 2:
-    from ConfigParser import RawConfigParser
-if sys.version_info[0] >= 3:
-    from configparser import RawConfigParser
 
 # Adjust system path accordingly
 if sys.platform in ['win32', 'cygwin']:
@@ -85,6 +80,9 @@ class AsciiColors:
 __author__ = 'etejeda'
 __version__ = '2018.09.16.1426'
 __config__ = 'cheater.cfg'
+__required_sections = [
+    'paths'
+]
 __auth__ = 'cheater.auth'
 
 # Globals
@@ -94,28 +92,18 @@ log_file = None
 loglevel = None
 logger = None
 
-config_file = 'config.ini'
+config_file = 'cheater.yaml'
 config_path = None
 colors = AsciiColors()
 
 
-def load_config(sections, config=None):
-    """ Load a specific section of the config file and extend the config global
-    :param sections: Name of a given section or list of sections
-    :param config: Optional config dictionary to extend/update
-    :return: Dictionary
+def load_config():
+    """ Load config file
     """
     global debug, config_file, config_path
-    if config is None:
-        config = dict()
-    else:
-        config = copy.copy(config)
-    # Specify dict_type although default is already OrderedDict
-    cfgparser = RawConfigParser(allow_no_value=True, dict_type=OrderedDict)
-    cfgparser.optionxform = str
     config_path_strings = [
         os.path.realpath(os.path.expanduser(os.path.join('~', '.cheater'))),
-        '.'
+        '.', '/etc/cheater'
     ]
     config_paths = [os.path.join(p, config_file) for p in config_path_strings]
     config_found = False
@@ -126,14 +114,16 @@ def load_config(sections, config=None):
         if config_exists:
             config_found = True
             try:
-                cfgparser.read(config_path)
-                config_is_valid = len(cfgparser.sections()) > 0
+                with open(config_path, 'r') as ymlfile:
+                    cfg = type('obj', (object,), yaml.load(ymlfile))
+                config_is_valid = all([cfg.search.get(section) for section in __required_sections])
                 logger.info("Found config file - {cf}".format(cf=colors.emerald(config_path)))
                 if not config_is_valid:
                     logger.warning(
-                        "I couldn't find any valid section defined in your config file: {cf}".format(
+                        """At least one required section is not defined in your config file: {cf}.""".format(
                             cf=colors.yellow(config_path))
                     )
+                    logger.warning("Review the available documentation or consult --help")
                 config_file = config_path
                 break
             except Exception as e:
@@ -142,29 +132,9 @@ def load_config(sections, config=None):
                         cp=config_path, err=colors.red(str(e)))
                 )
     if config_found and config_is_valid:
-        if type(sections) in (list, tuple):
-            for section in sections:
-                try:
-                    cfg = dict(cfgparser.items(section))
-                    config.update(cfg)
-                except Exception as e:
-                    print(e)
-        else:
-            try:
-                cfg = dict(cfgparser.items(sections))
-                config.update(cfg)
-            except Exception as e:
-                logger.warning(
-                    "I encountered a problem reading your config file: {cp}, error was {err}".format(
-                        cp=config_path, err=colors.red(str(e)))
-                )
-        # Split all keys in the config that end with _list into a list (assuming comma separated)
-        for key, val in config.items():
-            if key.endswith('_list'):
-                config[key] = val.split(',')
-        return config
+        return cfg
     else:
-        return {}
+        return None
 
 @click.group()
 @click.version_option(version=__version__)
@@ -173,17 +143,25 @@ def load_config(sections, config=None):
 @click.option('--verbose', '-v', count=True, help='Increase verbosity of output')
 @click.option('--log', '-l', type=str, help='Specify (an) optional log file(s)')
 def cli(**kwargs):
-    """ Work with cheat files
+    """Work with cheat files
 
-    Settings can be defined in config.ini
+    Settings can be defined in config file
 
     e.g.:
 
-    [defaults]
-    
-    cheatfile_paths = C:\\Users\\myusername\\Documents\\cheats
+    search:
 
-    filters = md;txt
+      paths:
+
+        - ~/cheats
+
+        - C:\\Users\\tomtester\\Documents\\notes
+
+      filters:
+
+        - md
+
+        - txt
     """
     global config_file, debug, verbose, loglevel, logger
     # Overriding globals
@@ -223,16 +201,20 @@ def cli(**kwargs):
              epilog="""\b
 Examples:
 cheater find -c ~/Documents/cheats.md foo bar baz
-cheater find -c ~/Documents/cheats.md -c ~/Documents/cheats/*.md foo bar baz
-cheater -C my_special_config.ini find -c ~/Documents/cheats.md -c ~/Documents/cheats/*.md foo bar baz
+cheater find -c ~/Documents/cheats.md foo bar baz
+cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz
 """)
 @click.version_option(version=__version__)
 @click.option('--explode-topics', '-e',
               is_flag=True,
               help='Write results to their own cheat files')
-@click.option('--cheatfiles', '-c',
+@click.option('--cheatfile', '-c',
               type=str, nargs=1,
-              help='Topics to search for',
+              help='Manually specify cheat file(s) to search against',
+              multiple=True)
+@click.option('--cheatfile-path', '-p',
+              type=str, nargs=1,
+              help='Manually specify cheat file paths to search against',
               multiple=True)
 @click.option('--local_cheat_cache', '-L',
               default='~/.cheater',
@@ -253,16 +235,27 @@ def find_cheats(**kwargs):
     """ Find cheat notes according to keywords
     """
     # Load config defaults
-    config = load_config('defaults')
-    filetypes = config['filters'] if config.get('filters') else 'md;txt'
+    config = load_config()
+    if config is None:
+        logger.error('No valid config file found. Consult README.md')
+        sys.exit(1)
+    filetypes = config.search['filters'] if config.search.get('filters') else ['md', 'txt']
     # Parse parameters
     topics = kwargs['topics']
     condition = 'any' if kwargs['any'] else 'all'
     search_body = True if kwargs['search_body'] else False
     explode = True if kwargs['explode_topics'] else False
-    cheatfiles = kwargs['cheatfiles']
-    if config.get('cheatfile_paths'):
-        cheatfiles = (*cheatfiles, config['cheatfile_paths'])
+    if kwargs.get('cheatfile'):
+        cheatfiles = []
+        for cf in kwargs['cheatfile']:
+            cheatfiles += glob.glob(os.path.expanduser(cf), recursive=True)
+    else:
+        cheatfiles = []
+    cheatfile_paths = kwargs['cheatfile_path']
+    if cheatfile_paths:
+        cheatfile_paths = [p for p in cheatfile_paths] + config.search['paths']
+    else:
+        cheatfile_paths = config.search['paths']
     # Build regular expression
     regx = '(.*%s)|' if condition == 'any' else '.*%s'
     if not len(topics) > 1:
@@ -284,16 +277,16 @@ def find_cheats(**kwargs):
     # Execution time
     start_time = time.time()
     # If any specified cheatfile paths are directories, walk through and append to cheatfile list
-    if any([os.path.isdir(cfo) for cfo in cheatfiles]):
-        for cfp in cheatfiles:
+    if any([os.path.isdir(cfo) for cfo in cheatfile_paths]):
+        for cfp in cheatfile_paths:
             if os.path.isdir(cfp):
                 logger.info('Processing cheat files under %s' % colors.purple(cfp))
                 for root, directories, files in os.walk(cfp):
                     directories[:] = [d for d in directories if not d.startswith('.')]
                     for filename in files:
-                        if any([filename.endswith(ft) for ft in filetypes.split(';')]):
+                        if any([filename.endswith(ft) for ft in filetypes]):
                             filepath = os.path.join(root, filename)
-                            cheatfiles = (*cheatfiles, filepath)
+                            cheatfiles = cheatfiles + [filepath]
     # Read cheatfiles
     for cheatfile in cheatfiles:
         if os.path.exists(cheatfile) and not os.path.isdir(cheatfile):
