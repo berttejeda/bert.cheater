@@ -92,8 +92,6 @@ Options:
 
 * For cheat file _~/Documents/cheats.md_, you want to find topic headers containing the words _foo_ _bar_ and _baz_
     * `cheater find -c ~/Documents/cheats.md foo bar baz`
-* For cheat file _~/Documents/cheats.md_ and cheat files ending in _.md_ in directory _~/Documents/somefiles/_ , you want to find topic headers containing the words _foo_ _bar_ and _baz_
-    * `cheater find -c ~/Documents/cheats.md -c ~/Documents/somefiles/*.md foo bar baz`
 * For cheat file _~/Documents/cheats.md_, you want to find topic headers containing the words _foo_ _bar_ and _baz_, 
 additionally, you want to specify your own configuration file _my_special_config.ini_
     * `cheater -C my_special_config.ini find -c ~/Documents/cheats.md foo bar baz`
