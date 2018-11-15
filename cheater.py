@@ -24,13 +24,16 @@ if sys.version_info[0] >= 3:
 if sys.platform in ['win32', 'cygwin']:
     project_root = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(project_root + '\\lib')
+elif sys.platform in ['darwin']:
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    sys.path.append(project_root + '/lib')
 else:
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.append(project_root + '/lib')
+        
 # Import third-party modules
 try:
     import click
-    import requests
 except ImportError:
     print('Please install/update the required modules:')
     print('pip install -U -r requirements.txt')
