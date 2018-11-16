@@ -12,7 +12,6 @@ import os
 import re
 import sys
 import time
-import yaml
 
 
 # Adjust system path accordingly
@@ -29,6 +28,7 @@ else:
 # Import third-party modules
 try:
     import click
+    import yaml
 except ImportError:
     print('Please install/update the required modules:')
     print('pip install -U -r requirements.txt')
@@ -191,6 +191,7 @@ def cli(**kwargs):
     streamhandler = logging.StreamHandler()
     streamhandler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s"))
     logger.addHandler(streamhandler)
+    logger.debug('Debug Mode Enabled')
     if not os.path.exists(config_file) and configfile_p:
         logger.warning("Couln't find %s" % colors.yellow(config_file))
     return 0
@@ -272,6 +273,7 @@ def find_cheats(**kwargs):
         search = '{s}|{rs}'.format(s=search, rs=rev_search)
     else:
         search = re.sub('\|$', '', search)
+    logger.debug('Regular expression is: %s' % search)
     string = re.compile(search)
     # Initialize defaults
     matched_topics = []
