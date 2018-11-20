@@ -6,6 +6,7 @@
 from __future__ import print_function
 import glob
 import io
+import itertools
 import logging
 import logging.handlers
 import os
@@ -242,7 +243,7 @@ def find_cheats(**kwargs):
         sys.exit(1)
     filetypes = config.search['filters'] if config.search.get('filters') else ['md', 'txt']
     # Parse parameters
-    topics = kwargs['topics']
+    search_topics = kwargs['topics']
     condition = 'any' if kwargs['any'] else 'all'
     search_body = True if kwargs['search_body'] else False
     explode = True if kwargs['explode_topics'] else False
@@ -262,18 +263,20 @@ def find_cheats(**kwargs):
     else:
         cheatfile_paths = config.search['paths']
     # Build regular expression
-    regx = '(.*%s)|' if condition == 'any' else '.*%s'
-    if not len(topics) > 1:
-        search = '.*%s' % topics[0]
-    else:
-        search = ''.join([regx % t for t in topics])
+    search_list = []
     if condition == 'all':
-        search = re.sub('\|\|$', '', search)
-        rev_search = ''.join([regx % t for t in reversed(topics)])
-        search = '{s}|{rs}'.format(s=search, rs=rev_search)
+        regx = '.*%s'
+        # Account for ALL permutations of the list of search topics
+        search_permutations = list(itertools.permutations(list(search_topics)))
+        for sp in search_permutations:
+            search_list.append('(%s)|' % ''.join([regx % p for p in sp]))
+        search = ''.join(search_list)
     else:
-        search = re.sub('\|$', '', search)
+        regx = '.*%s|'
+        search = ''.join([regx % t for t in search_topics])
+    search = re.sub('\|$', '', search)
     logger.debug('Regular expression is: %s' % search)
+    # Compile the regular expression
     string = re.compile(search)
     # Initialize defaults
     matched_topics = []
@@ -367,7 +370,7 @@ def find_cheats(**kwargs):
     action = "Wrote" if explode else "Retrieved"
     logger.info('%s %s topic(s) in %0.2f seconds' % (
         action, len(matched_topics), (end_time - start_time))
-    )
+                )
 
 
 if __name__ == '__main__':
