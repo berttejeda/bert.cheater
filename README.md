@@ -103,7 +103,7 @@ can help narrow down search results if you specify a search condition.
 
 As such, the default search logic is _all_, where all search terms must occur in the topic header (logically equivalent to AND).
 
-If you want to broaden your search criteria, use the `-a/--any` flag, instructing `cheater` _any_ search term to be present in the topic header (logically equivalent to OR).
+If you want to broaden your search criteria, use the `-a/--any` flag, instructing `cheater` to consider _any_ search term present in the topic header (logically equivalent to OR).
 
 # How do I get started?
 
