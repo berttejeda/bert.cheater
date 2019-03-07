@@ -31,10 +31,11 @@ try:
     import click
     import yaml
 except ImportError:
+    print('Failed to import at least one required module')
+    print('Error was %s' % e)
     print('Please install/update the required modules:')
     print('pip install -U -r requirements.txt')
     sys.exit(1)
-
 
 class AsciiColors:
     """
