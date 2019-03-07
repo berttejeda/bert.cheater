@@ -30,9 +30,9 @@ else:
 try:
     import click
     import yaml
-except ImportError:
+except ImportError as err:
     print('Failed to import at least one required module')
-    print('Error was %s' % e)
+    print('Error was %s' % err)
     print('Please install/update the required modules:')
     print('pip install -U -r requirements.txt')
     sys.exit(1)
