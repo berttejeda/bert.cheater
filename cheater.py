@@ -348,9 +348,12 @@ def find_cheats(**kwargs):
                     headers = str(headers.encode('utf-8').decode('utf8'))
                     body = str(body.encode('utf-8').decode('utf8'))
                 except UnicodeEncodeError:
-                    logger.error('I had trouble encoding this topic: {c}'.format(
-                        c=colors.red(cheat_topic)))
-                    continue
+                    try:
+                        body = str(body.encode('utf-8'))
+                    except Exception:
+                        logger.error('I had trouble encoding this topic: {c}'.format(
+                            c=colors.red(cheat_topic)))
+                        continue
                 if explode:
                     output_filename = re.sub("\s|#|:|/|'", "_", headers.split('#')[1].strip()) + '.md'
                     try:
@@ -375,4 +378,4 @@ def find_cheats(**kwargs):
 
 
 if __name__ == '__main__':
-    sys.exit(cli())
+    sys.exit(cli(sys.argv[1:]))
