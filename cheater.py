@@ -14,25 +14,38 @@ import re
 import sys
 import time
 
+# OS Detection
+is_windows = True if sys.platform in ['win32', 'cygwin'] else False
+is_darwin = True if sys.platform in ['darwin'] else False
 
-# Adjust system path accordingly
-if sys.platform in ['win32', 'cygwin']:
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(project_root + '\\lib')
-elif sys.platform in ['darwin']:
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(project_root + '/lib')
+# Account for script packaged as an exe via cx_freeze
+if getattr(sys, 'frozen', False):
+    # frozen
+    self_file_name = script_name = os.path.basename(sys.executable)
+    project_root = os.path.dirname(os.path.abspath(sys.executable))
 else:
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(project_root + '/lib')
-        
+    # unfrozen
+    self_file_name = os.path.basename(__file__)
+    if self_file_name == '__main__.py':
+        script_name = os.path.dirname(__file__)
+    else:
+        script_name = self_file_name
+    project_root = os.path.dirname(os.path.abspath(__file__))
+
+# Modify our sys path to include the script's location
+sys.path.insert(0, project_root)
+# Make the zipapp work for python2/python3
+py_path = 'py3' if sys.version_info[0] >= 3 else 'py2'
+sys.path.insert(0, os.path.join(project_root, 'libs', py_path))
+
 # Import third-party modules
 try:
     import click
     import yaml
-except ImportError as err:
+except ImportError as e:
+    print('Error in %s ' % os.path.basename(self_file_name))
     print('Failed to import at least one required module')
-    print('Error was %s' % err)
+    print('Error was %s' % e)
     print('Please install/update the required modules:')
     print('pip install -U -r requirements.txt')
     sys.exit(1)
@@ -45,7 +58,16 @@ class AsciiColors:
     def __init__(self):
         self.ascii_green_start = '[92m'
         self.ascii_green_end = '[92m'
-        pass
+        if not __import__("sys").stdout.isatty():
+            for _ in dir():
+                if isinstance(_, str) and _[0] != "_":
+                    locals()[_] = ""
+        else:
+            # Set Windows console in VT mode
+            if __import__("platform").system() == "Windows":
+                kernel32 = __import__("ctypes").windll.kernel32
+                kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+                del kernel32        
 
     @staticmethod
     def colorize(color_string, string='', **kwargs):
@@ -80,7 +102,7 @@ class AsciiColors:
 
 # Private variables
 __author__ = 'etejeda'
-__version__ = '2018.09.16.1426'
+__version__ = '1.1.6'
 __config__ = 'cheater.cfg'
 __required_sections = [
     'paths'
