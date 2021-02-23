@@ -315,18 +315,9 @@ def find_cheats(**kwargs):
     # Execution time
     start_time = time.time()
     # If any specified cheatfile paths are directories, walk through and append to cheatfile list
-    if any([os.path.isdir(cfo) for cfo in cheatfile_paths]):
-        for cfp in cheatfile_paths:
-            if os.path.isdir(cfp):
-                logger.info('Processing cheat files under %s' % colors.purple(cfp))
-                for root, directories, files in os.walk(cfp):
-                    directories[:] = [d for d in directories if not d.startswith('.')]
-                    for filename in files:
-                        if any([filename.endswith(ft) for ft in filetypes]):
-                            filepath = os.path.join(root, filename)
-                            cheatfiles = cheatfiles + [filepath]
-    # Read cheatfiles
-    for cheatfile in cheatfiles:
+    print([c for c in gather_cheatfiles(cfpaths=cheatfile_paths, cftypes=filetypes)])
+    sys.exit()
+    for cheatfile in gather_cheatfiles:
         if os.path.exists(cheatfile) and not os.path.isdir(cheatfile):
             try:
                 with io.open(cheatfile, "r", encoding="utf-8") as n:
@@ -412,6 +403,19 @@ def find_cheats(**kwargs):
         action, len(matched_topics), (end_time - start_time))
                 )
 
+def gather_cheatfiles(**kwargs):
+    cheatfile_paths = kwargs.get('cfpaths')
+    filetypes = kwargs.get('cftypes')
+    if any([os.path.isdir(cfo) for cfo in cheatfile_paths]):
+        for cfp in cheatfile_paths:
+            if os.path.isdir(cfp):
+                logger.info('Processing cheat files under %s' % colors.purple(cfp))
+                for root, directories, files in os.walk(cfp):
+                    directories[:] = [d for d in directories if not d.startswith('.')]
+                    for filename in files:
+                        if any([filename.endswith(ft) for ft in filetypes]):
+                            filepath = os.path.join(root, filename)
+                            yield [filepath]    
 
 if __name__ == '__main__':
     sys.exit(cli(sys.argv[1:]))
