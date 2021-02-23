@@ -102,7 +102,7 @@ class AsciiColors:
 
 # Private variables
 __author__ = 'etejeda'
-__version__ = '1.1.6'
+__version__ = '1.1.9'
 __config__ = 'cheater.cfg'
 __required_sections = [
     'paths'
@@ -167,25 +167,23 @@ def load_config():
 @click.option('--verbose', '-v', count=True, help='Increase verbosity of output')
 @click.option('--log', '-l', type=str, help='Specify (an) optional log file(s)')
 def cli(**kwargs):
-    """Work with cheat files
-
-    Settings can be defined in config file
-
-    e.g.:
-
+    """
+\b
+Work with cheat files
+\b
+Settings can be defined in config file (--config/-C)
+    e.g. cheater.yaml:
     search:
-
       paths:
-
         - ~/cheats
-
         - C:\\Users\\tomtester\\Documents\\notes
-
       filters:
-
         - md
-
         - txt
+If no config file is specified, the tool will attempt to read one from the following locations, in order of precedence:
+- /etc/cheater.yaml
+- ./cheater.yaml
+- ~/cheater.yaml        
     """
     global config_file, debug, verbose, loglevel, logger
     # Overriding globals
@@ -228,6 +226,12 @@ Examples:
 cheater find -c ~/Documents/cheats.md foo bar baz
 cheater find -c ~/Documents/cheats.md foo bar baz
 cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz
+
+If no config file is specified, the tool will attempt to read one from the following locations, in order of precedence:
+
+- /etc/cheater.yaml
+- ./cheater.yaml
+- ~/cheater.yaml 
 """)
 @click.version_option(version=__version__)
 @click.option('--explode-topics', '-e',
