@@ -233,6 +233,7 @@ cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz
 @click.option('--explode-topics', '-e',
               is_flag=True,
               help='Write results to their own cheat files')
+@click.option('--pause', '-P', is_flag=True, help='Pause between topic output')
 @click.option('--cheatfile', '-c',
               type=str, nargs=1,
               help='Manually specify cheat file(s) to search against',
@@ -269,6 +270,7 @@ def find_cheats(**kwargs):
     search_topics = kwargs['topics']
     condition = 'any' if kwargs['any'] else 'all'
     search_body = True if kwargs['search_body'] else False
+    pause = kwargs.get('pause')
     explode = True if kwargs['explode_topics'] else False
     if kwargs.get('cheatfile'):
         cheatfiles = []
@@ -383,12 +385,20 @@ def find_cheats(**kwargs):
                             print("{h}\n{b}".format(h=colors.purple(headers), b=colors.green(body)))
                             text_file.write("{h}\n{b}".format(h=headers, b=body))
                             matched_topics.append(headers)
+                        if pause:
+                            wait = input("PRESS ENTER TO CONTINUE TO NEXT TOPIC or 'q' to quit ")
+                            if wait.lower() == 'q':
+                                sys.exit()
                     except Exception:
                         logger.error('Failed to write {h} ... skipping'.format(h=headers))
                 else:
                     try:
                         print('{h}\n{b}'.format(h=colors.purple(headers), b=colors.green(body)))
                         matched_topics.append(headers)
+                        if pause:
+                            wait = input("ENTER => CONTINUE TO NEXT TOPIC or 'q' to quit ")
+                            if wait.lower() == 'q':
+                                sys.exit()                            
                     except Exception:
                         logger.error('Failed to process topic ... skipping')
                         continue
