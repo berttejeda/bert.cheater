@@ -138,7 +138,7 @@ def load_config():
             config_found = True
             try:
                 with open(config_path, 'r') as ymlfile:
-                    cfg = type('obj', (object,), yaml.load(ymlfile))
+                    cfg = type('obj', (object,), yaml.load(ymlfile,Loader=yaml.Loader))
                 config_is_valid = all([cfg.search.get(section) for section in __required_sections])
                 logger.info("Found config file - {cf}".format(cf=colors.emerald(config_path)))
                 if not config_is_valid:
@@ -331,9 +331,6 @@ def find_cheats(**kwargs):
                     print()
             cheats_length = len(cheats)
             topics = [(i, n) for i, n in enumerate(cheats) if n.startswith('# ')]
-            # else:
-            #     topics_count = len([s for s in topics if s[1].startswith('# ') and string.search(s[1])])
-            #     print('Found %s topic(s) matching your search' % topics_count)
             for index, line in enumerate(topics):
                 # Find the corresponding line index
                 s_line_index = topics[index][0]
