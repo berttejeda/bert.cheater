@@ -70,6 +70,7 @@ Options:
   -e, --explode-topics          Write results to their own cheat files
   -c, --cheatfile TEXT          Manually specify cheat file(s) to search
                                 against
+  -P, --pause                   Pause between topic output                                
   -p, --cheatfile-path TEXT     Manually specify cheat file paths to search
                                 against
   -L, --local_cheat_cache TEXT  Specify root folder you want to store cheats
