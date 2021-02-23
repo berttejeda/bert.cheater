@@ -103,7 +103,6 @@ class AsciiColors:
 # Private variables
 __author__ = 'etejeda'
 __version__ = 'v1.1.9'
-__config__ = 'cheater.cfg'
 __required_sections = [
     'paths'
 ]
@@ -183,7 +182,7 @@ Settings can be defined in config file (--config/-C)
 If no config file is specified, the tool will attempt to read one from the following locations, in order of precedence:
 - /etc/cheater.yaml
 - ./cheater.yaml
-- ~/cheater.yaml        
+- ~/.cheater/cheater.yaml
     """
     global config_file, debug, verbose, loglevel, logger
     # Overriding globals
@@ -231,7 +230,7 @@ If no config file is specified, the tool will attempt to read one from the follo
 
 - /etc/cheater.yaml
 - ./cheater.yaml
-- ~/cheater.yaml 
+- ~/.cheater/cheater.yaml
 """)
 @click.version_option(version=__version__)
 @click.option('--explode-topics', '-e',
@@ -315,9 +314,7 @@ def find_cheats(**kwargs):
     # Execution time
     start_time = time.time()
     # If any specified cheatfile paths are directories, walk through and append to cheatfile list
-    print([c for c in gather_cheatfiles(cfpaths=cheatfile_paths, cftypes=filetypes)])
-    sys.exit()
-    for cheatfile in gather_cheatfiles:
+    for cheatfile in gather_cheatfiles(cfpaths=cheatfile_paths, cftypes=filetypes):
         if os.path.exists(cheatfile) and not os.path.isdir(cheatfile):
             try:
                 with io.open(cheatfile, "r", encoding="utf-8") as n:
@@ -415,7 +412,7 @@ def gather_cheatfiles(**kwargs):
                     for filename in files:
                         if any([filename.endswith(ft) for ft in filetypes]):
                             filepath = os.path.join(root, filename)
-                            yield [filepath]    
+                            yield filepath
 
 if __name__ == '__main__':
     sys.exit(cli(sys.argv[1:]))
