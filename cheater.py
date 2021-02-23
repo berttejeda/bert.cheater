@@ -102,7 +102,7 @@ class AsciiColors:
 
 # Private variables
 __author__ = 'etejeda'
-__version__ = 'v1.1.9'
+__version__ = 'v1.2'
 __required_sections = [
     'paths'
 ]

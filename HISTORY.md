@@ -2,6 +2,15 @@
 History
 =======
 
+## Release 2021-02-23 v1.2
+
+* Adjusted yaml loader to address deprecation warning [b558252](/commit/b558252a17133a4b9feff73eaec584701ba8e5fb)
+* Changed pause behavior [3df548e](/commit/3df548e3aa131803653cf5a87086ea3633ef9d1d)
+* Fixed bug in gather_cheatfile return type [d173321](/commit/d17332128798b927253a689abe8db39537d226d3)
+* Employ a generator when processing cheat files [9638829](/commit/9638829384cae5c70a1e38aa03632748d2035723)
+* Updated usage [277b835](/commit/277b835be65ef36ffd909f62b286c99e3bc76b30)
+* Versions string specifier should match v[\d]+.[\d]+.[\d]+ [236bbc1](/commit/236bbc1bde880c4a1758f4cf0275e5566a790fb7)
+
 ## Release 2021-02-23 v1.1.9
 
 * Updated help text, bumped version to 1.1.9 [156da91](/commit/156da9193f2b298fdb06853e350f6fc5e57683a5)
