@@ -236,7 +236,6 @@ If no config file is specified, the tool will attempt to read one from the follo
 @click.option('--explode-topics', '-e',
               is_flag=True,
               help='Write results to their own cheat files')
-@click.option('--pause', '-P', is_flag=True, help='Pause between topic output')
 @click.option('--cheatfile', '-c',
               type=str, nargs=1,
               help='Manually specify cheat file(s) to search against',
@@ -257,6 +256,7 @@ If no config file is specified, the tool will attempt to read one from the follo
 @click.option('--search-body', '-b',
               is_flag=True,
               help='Search against cheat note content instead of topic headers')
+@click.option('--no-pause', is_flag=True, help='Do not pause between topic output')
 @click.argument('topics',
                 required=True,
                 nargs=-1)
@@ -273,7 +273,11 @@ def find_cheats(**kwargs):
     search_topics = kwargs['topics']
     condition = 'any' if kwargs['any'] else 'all'
     search_body = True if kwargs['search_body'] else False
-    pause = kwargs.get('pause')
+    no_pause = kwargs.get('no_pause')
+    if no_pause:
+        pause = False
+    else:
+        pause = True
     explode = True if kwargs['explode_topics'] else False
     if kwargs.get('cheatfile'):
         cheatfiles = []
