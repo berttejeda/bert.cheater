@@ -269,6 +269,7 @@ def find_cheats(**kwargs):
         logger.error('No valid config file found. Consult README.md')
         sys.exit(1)
     filetypes = config.search['filters'] if config.search.get('filters') else ['md', 'txt']
+    logger.debug('Saerching against file types %s' % ','.join(filetypes))
     # Parse parameters
     search_topics = kwargs['topics']
     condition = 'any' if kwargs['any'] else 'all'
@@ -294,6 +295,7 @@ def find_cheats(**kwargs):
         cheatfile_paths = [p for p in cheatfile_paths] + config.search['paths']
     else:
         cheatfile_paths = config.search['paths']
+    logger.debug('Cheat file paths set to %s' % ','.join(cheatfile_paths))
     # Build regular expression
     search_list = []
     if condition == 'all':
