@@ -110,7 +110,9 @@ If you want to broaden your search criteria, use the `-a/--any` flag, instructin
 
 ## Installation
 
-    * Using `pip`
-        ```pip install git+https://github.com/berttejeda/bert.cheater.git```
-    * Downloading a release (It's just a zip-application with self-contained dependencies)
-    * Cloning this repo and running `pip install -r requirements`, then working with `cheater.py`
+### Using Pip
+
+Just run `pip install git+https://github.com/berttejeda/bert.cheater.git`
+
+Or clone this repo, switch to the project root `cd bert.cheater`, and `pip install -e .`,
+then calling `python bertdotcheater/cli.py --help`
