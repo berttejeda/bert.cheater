@@ -116,3 +116,7 @@ Just run `pip install git+https://github.com/berttejeda/bert.cheater.git`
 
 Or clone this repo, switch to the project root `cd bert.cheater`, and `pip install -e .`,
 then calling `python bertdotcheater/cli.py --help`
+
+### Using Standalone Script
+
+Install requirements with `pip install -r requirements.txt` and copy the `bertdotcheater/cli.py` script to wherever your heart desires.
