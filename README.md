@@ -55,7 +55,7 @@ If no config file is specified, the tool will attempt to read one from the follo
 
 - /etc/cheater.yaml
 - ./cheater.yaml
-- ~/cheater.yaml
+- ~/.cheater/cheater.yaml
 
 
 # Usage
