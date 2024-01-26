@@ -1,18 +1,18 @@
 # Introduction
 
-`cheater` is a general-purpose cheatsheet tool powered by python.
+`bt-cheater` is a general-purpose cheatsheet tool powered by python.
 
 The tool provides a way search through snippets of text stored in plain-text files using keywords, and all from the commandline.
 
 The search logic relies on a simple structure for the text: a cheat _header_ and _body_, e.g.
 
 ```
-    # python ternary assignments # ternary # variables
-        This is a note on python ternary variable assignments
-    # bash loops # loops
-        This is text on bash loop structures
-    # civil # war # us
-        Dates: Apr 12, 1861 - May 9, 1865
+# python ternary assignments # ternary # variables
+    This is a note on python ternary variable assignments
+# bash loops # loops
+    This is text on bash loop structures
+# civil # war # us
+    Dates: Apr 12, 1861 - May 9, 1865
 ```
 
 As illustrated above, the header is comprised of _Cheat Terms_, which are keywords delimited by octothorpes (#). 
@@ -43,10 +43,9 @@ These are the settings recognized by the tool:
 
 If no config file is specified, the tool will attempt to read one from the following locations, in order of precedence:
 
-- /etc/cheater/config.yaml
+- /etc/bt-cheater/config.yaml
 - ./config.yaml
-- ~/.cheater/config.yaml
-
+- ~/.bt-cheater/config.yaml
 
 # Usage
 
@@ -74,16 +73,16 @@ Options:
   --help                        Show this message and exit.
 
   Examples:
-  cheater find -c ~/Documents/cheats.md foo bar baz
-  cheater find -c ~/Documents/cheats.md foo bar baz
-  cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz
+  bt-cheater find -c ~/Documents/cheats.md foo bar baz
+  bt-cheater find -c ~/Documents/cheats.md foo bar baz
+  bt-cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz
 
   If no config file is specified, the tool will attempt to read one from the
   following locations, in order of precedence:
 
-  - /etc/cheater/config.yaml 
+  - /etc/bt-cheater/config.yaml 
   - ./config.yaml 
-  - ~/.cheater/config.yaml
+  - ~/.bt-cheater/config.yaml
 ```
 
 ## Usage examples
@@ -100,11 +99,12 @@ search:
 ```
 
 * You want to find topic headers containing the words _foo_ _bar_ and _baz_
-    * `cheater find foo bar baz`
+    * `bt-cheater find foo bar baz`
 * You want to search a specific cheat file, _~/Documents/cheats.md_, for topic headers containing the words _foo_ _bar_ and _baz_
-    * `cheater find -c ~/Documents/cheats.md foo bar baz`
+    * `bt-cheater find -c ~/Documents/cheats.md foo bar baz`
 * Same as above, but you also want to specify your own configuration file _my_special_config.yaml_
-    * `cheater -C my_special_config.ini find -c ~/Documents/cheats.md foo bar baz`
+    * `bt-cheater -C my_special_config.ini find -c ~/Documents/cheats.md foo bar baz`<br />
+    **Note:** Because you explicitly specified the cheat file, any cheat paths defined in your config will be skipped
 
 # Tips
 
