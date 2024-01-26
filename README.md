@@ -103,7 +103,7 @@ search:
 * You want to search a specific cheat file, _~/Documents/cheats.md_, for topic headers containing the words _foo_ _bar_ and _baz_
     * `bt-cheater find -c ~/Documents/cheats.md foo bar baz`
 * Same as above, but you also want to specify your own configuration file _my_special_config.yaml_
-    * `bt-cheater -C my_special_config.ini find -c ~/Documents/cheats.md foo bar baz`<br />
+    * `bt-cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz`<br />
     **Note:** Because you explicitly specified the cheat file, any cheat paths defined in your config will be skipped
 
 # Tips
