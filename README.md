@@ -121,7 +121,8 @@ If you want to broaden your search criteria, use the `-a/--any` flag, instructin
 
 ### Using Pip
 
-Just run `pip install git+https://github.com/berttejeda/bert.cheater.git`
+- Form pypi.org `pip install bt-cheater`
+- Directly from the repo `pip install git+https://github.com/berttejeda/bert.cheater.git`
 
 Or clone this repo, switch to the project root `cd bert.cheater`, and `pip install -e .`,
 then calling `python bertdotcheater/cli.py --help`
