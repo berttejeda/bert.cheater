@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import time
+from pyaml_env import parse_config
 
 # OS Detection
 is_windows = True if sys.platform in ['win32', 'cygwin'] else False
@@ -115,7 +116,7 @@ log_file = None
 loglevel = None
 logger = None
 
-config_file = 'cheater.yaml'
+config_file = 'config.yaml'
 config_path = None
 colors = AsciiColors()
 
@@ -136,9 +137,8 @@ def load_config():
         config_is_valid = False
         if config_exists:
             config_found = True
-            try:
-                with open(config_path, 'r') as ymlfile:
-                    cfg = type('obj', (object,), yaml.load(ymlfile,Loader=yaml.Loader))
+            try:                
+                cfg = type('obj', (object,), parse_config(config_path))
                 config_is_valid = all([cfg.search.get(section) for section in __required_sections])
                 logger.info("Found config file - {cf}".format(cf=colors.emerald(config_path)))
                 if not config_is_valid:
@@ -171,7 +171,7 @@ def cli(**kwargs):
 Work with cheat files
 \b
 Settings can be defined in config file (--config/-C)
-    e.g. cheater.yaml:
+    e.g. config.yaml:
     search:
       paths:
         - ~/cheats
@@ -180,9 +180,10 @@ Settings can be defined in config file (--config/-C)
         - md
         - txt
 If no config file is specified, the tool will attempt to read one from the following locations, in order of precedence:
-- /etc/cheater.yaml
-- ./cheater.yaml
-- ~/.cheater/cheater.yaml
+
+- /etc/cheater/config.yaml
+- ./config.yaml
+- ~/.cheater/config.yaml
     """
     global config_file, debug, verbose, loglevel, logger
     # Overriding globals
@@ -220,17 +221,21 @@ If no config file is specified, the tool will attempt to read one from the follo
 
 @cli.command('find',
              short_help='Retrieve cheat notes from specified cheatfiles according to keywords',
-             epilog="""\b
+             epilog="""
+\b
 Examples:
 cheater find -c ~/Documents/cheats.md foo bar baz
 cheater find -c ~/Documents/cheats.md foo bar baz
 cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz
 
-If no config file is specified, the tool will attempt to read one from the following locations, in order of precedence:
+If no config file is specified, the tool will attempt to 
+read one from the following locations, in order of precedence:
 
-- /etc/cheater.yaml
-- ./cheater.yaml
-- ~/.cheater/cheater.yaml
+- /etc/cheater/config.yaml
+
+- ./config.yaml
+
+- ~/.cheater/config.yaml
 """)
 @click.version_option(version=__version__)
 @click.option('--explode-topics', '-e',
@@ -292,9 +297,9 @@ def find_cheats(**kwargs):
         cheatfiles = []
     cheatfile_paths = kwargs['cheatfile_path']
     if cheatfile_paths:
-        cheatfile_paths = [p for p in cheatfile_paths] + config.search['paths']
+        cheatfile_paths = [os.path.expanduser(p) for p in cheatfile_paths] + config.search['paths']
     else:
-        cheatfile_paths = config.search['paths']
+        cheatfile_paths = [os.path.expanduser(p) for p in config.search['paths']]
     logger.debug('Cheat file paths set to %s' % ','.join(cheatfile_paths))
     # Build regular expression
     search_list = []
@@ -416,6 +421,8 @@ def gather_cheatfiles(**kwargs):
                         if any([filename.endswith(ft) for ft in filetypes]):
                             filepath = os.path.join(root, filename)
                             yield filepath
+    else:
+      yield cheatfile_paths
 
 if __name__ == '__main__':
     sys.exit(cli(sys.argv[1:]))
