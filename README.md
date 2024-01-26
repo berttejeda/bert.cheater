@@ -2,7 +2,7 @@
 
 `cheater` is a general-purpose cheatsheet tool powered by python.
 
-The tool provides a way search through snippets of text stored in plain-text files.
+The tool provides a way search through snippets of text stored in plain-text files using keywords, and all from the commandline.
 
 The search logic relies on a simple structure for the text: a cheat _header_ and _body_, e.g.
 
@@ -26,20 +26,9 @@ The whitespace padding is optional and improves readability.
 ```
 search:
   paths:
-    - C:\Users\myusername\Documents\workspace\md
-    - ~/Documents
-    - ~/cheats
-  filters:
-    - md
-    - txt
-```
-
-as with:
-
-```
-search:
-  paths:
-    - C:\Users\tomtester\Documents\cheats
+    - ~/Documents/notes
+    - ${HOME}/Documents/more_notes
+    - ~/notes
   filters:
     - md
     - txt
@@ -47,21 +36,22 @@ search:
 
 These are the settings recognized by the tool:
 
-||Key||Value||
-|paths|List of cheat file paths to search against|
-|filters|List of file extensions to search for|
+| Key     | Value                                      |
+|:--------|:-------------------------------------------|
+| paths   | List of cheat file paths to search against |
+| filters | List of file extensions to search for      |
 
 If no config file is specified, the tool will attempt to read one from the following locations, in order of precedence:
 
-- /etc/cheater.yaml
-- ./cheater.yaml
-- ~/.cheater/cheater.yaml
+- /etc/cheater/config.yaml
+- ./config.yaml
+- ~/.cheater/config.yaml
 
 
 # Usage
 
 ```
-Usage: cheater.py find [OPTIONS] TOPICS...
+Usage: cheater find [OPTIONS] TOPICS...
 
   Find cheat notes according to keywords
 
@@ -70,7 +60,6 @@ Options:
   -e, --explode-topics          Write results to their own cheat files
   -c, --cheatfile TEXT          Manually specify cheat file(s) to search
                                 against
-  -P, --pause                   Pause between topic output                                
   -p, --cheatfile-path TEXT     Manually specify cheat file paths to search
                                 against
   -L, --local_cheat_cache TEXT  Specify root folder you want to store cheats
@@ -81,20 +70,40 @@ Options:
                                 (default is "all")
   -b, --search-body             Search against cheat note content instead of
                                 topic headers
+  --no-pause                    Do not pause between topic output
   --help                        Show this message and exit.
 
   Examples:
   cheater find -c ~/Documents/cheats.md foo bar baz
   cheater find -c ~/Documents/cheats.md foo bar baz
   cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz
+
+  If no config file is specified, the tool will attempt to read one from the
+  following locations, in order of precedence:
+
+  - /etc/cheater/config.yaml 
+  - ./config.yaml 
+  - ~/.cheater/config.yaml
 ```
 
 ## Usage examples
 
-* For cheat file _~/Documents/cheats.md_, you want to find topic headers containing the words _foo_ _bar_ and _baz_
+Given: Your config file is configured to search through '~/Documents/notes' 
+for cheat files, that is, your configuration file is ~/.cheater/config.yaml, with contents: <br />
+```yaml
+search:
+  paths:
+    - ${HOME}/Documents/notes
+  filters:
+    - md
+    - txt
+```
+
+* You want to find topic headers containing the words _foo_ _bar_ and _baz_
+    * `cheater find foo bar baz`
+* You want to search a specific cheat file, _~/Documents/cheats.md_, for topic headers containing the words _foo_ _bar_ and _baz_
     * `cheater find -c ~/Documents/cheats.md foo bar baz`
-* For cheat file _~/Documents/cheats.md_, you want to find topic headers containing the words _foo_ _bar_ and _baz_, 
-additionally, you want to specify your own configuration file _my_special_config.ini_
+* Same as above, but you also want to specify your own configuration file _my_special_config.yaml_
     * `cheater -C my_special_config.ini find -c ~/Documents/cheats.md foo bar baz`
 
 # Tips
