@@ -4,110 +4,25 @@
 """
 # Imports
 from __future__ import print_function
+from bertdotcheater.ascii import AsciiColors
+from bertdotcheater.logger import Logger
+from bertdotcheater.processor import CheatFileProcessor
+from getversion import get_module_version
+import bertdotcheater
 import glob
-import io
-import itertools
 import logging
-import logging.handlers
 import os
-import re
 import sys
 import time
 from pyaml_env import parse_config
-
-# OS Detection
-is_windows = True if sys.platform in ['win32', 'cygwin'] else False
-is_darwin = True if sys.platform in ['darwin'] else False
-
-# Account for script packaged as an exe via cx_freeze
-if getattr(sys, 'frozen', False):
-    # frozen
-    self_file_name = script_name = os.path.basename(sys.executable)
-    project_root = os.path.dirname(os.path.abspath(sys.executable))
-else:
-    # unfrozen
-    self_file_name = os.path.basename(__file__)
-    if self_file_name == '__main__.py':
-        script_name = os.path.dirname(__file__)
-    else:
-        script_name = self_file_name
-    project_root = os.path.dirname(os.path.abspath(__file__))
-
-# Modify our sys path to include the script's location
-sys.path.insert(0, project_root)
-# Make the zipapp work for python2/python3
-py_path = 'py3' if sys.version_info[0] >= 3 else 'py2'
-sys.path.insert(0, os.path.join(project_root, 'libs', py_path))
-
-# Import third-party modules
-try:
-    import click
-    import yaml
-except ImportError as e:
-    print('Error in %s ' % os.path.basename(self_file_name))
-    print('Failed to import at least one required module')
-    print('Error was %s' % e)
-    print('Please install/update the required modules:')
-    print('pip install -U -r requirements.txt')
-    sys.exit(1)
-
-class AsciiColors:
-    """
-    Terminal colors
-    """
-
-    def __init__(self):
-        self.ascii_green_start = '[92m'
-        self.ascii_green_end = '[92m'
-        if not __import__("sys").stdout.isatty():
-            for _ in dir():
-                if isinstance(_, str) and _[0] != "_":
-                    locals()[_] = ""
-        else:
-            # Set Windows console in VT mode
-            if __import__("platform").system() == "Windows":
-                kernel32 = __import__("ctypes").windll.kernel32
-                kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
-                del kernel32        
-
-    @staticmethod
-    def colorize(color_string, string='', **kwargs):
-        ascii_colors = {
-            'bold': '[1m',
-            'emerald': '[36m',
-            'red': '[91m',
-            'green': '[92m',
-            'yellow': '[93m',
-            'purple': '[95m',
-            'reset': '[0m'
-        }
-        if kwargs.get('codeonly'):
-            return ascii_colors[color_string]
-        else:
-            return ascii_colors[color_string] + string + ascii_colors['reset']
-
-    def emerald(self, string):
-        return self.colorize('emerald', string)
-
-    def purple(self, string):
-        return self.colorize('purple', string)
-
-    def green(self, string):
-        return self.colorize('green', string)
-
-    def red(self, string):
-        return self.colorize('red', string)
-
-    def yellow(self, string):
-        return self.colorize('yellow', string)
+import click
 
 # Private variables
 __author__ = 'etejeda'
-__version__ = 'v1.2'
+__version__ = get_module_version(bertdotcheater)[0]
 __required_sections = [
     'paths'
 ]
-__auth__ = 'cheater.auth'
 
 # Globals
 debug = False
@@ -120,14 +35,16 @@ config_file = 'config.yaml'
 config_path = None
 colors = AsciiColors()
 
+# Initialize logging facility
+logger = Logger().init_logger(__name__)
 
 def load_config():
     """ Load config file
     """
     global debug, config_file, config_path
     config_path_strings = [
-        os.path.realpath(os.path.expanduser(os.path.join('~', '.cheater'))),
-        '.', '/etc/cheater'
+        os.path.realpath(os.path.expanduser(os.path.join('~', '.bt-cheater'))),
+        '.', '/etc/bt-cheater'
     ]
     config_paths = [os.path.join(p, config_file) for p in config_path_strings]
     config_found = False
@@ -181,17 +98,18 @@ Settings can be defined in config file (--config/-C)
         - txt
 If no config file is specified, the tool will attempt to read one from the following locations, in order of precedence:
 
-- /etc/cheater/config.yaml
+- /etc/bt-cheater/config.yaml
+- ~/.bt-cheater/config.yaml
 - ./config.yaml
-- ~/.cheater/config.yaml
     """
-    global config_file, debug, verbose, loglevel, logger
+    global config_file
     # Overriding globals
     configfile_p = kwargs.get('config')
     if configfile_p:
         config_file = os.path.realpath(os.path.expanduser(kwargs['config']))
+    if not os.path.exists(config_file) and configfile_p:
+        logger.warning("Couln't find %s" % colors.yellow(config_file))
     debug = kwargs['debug']
-    logfilename = kwargs['log']
     verbose = kwargs['verbose']
     if debug:
         loglevel = logging.DEBUG  # 10
@@ -201,42 +119,27 @@ If no config file is specified, the tool will attempt to read one from the follo
         loglevel = logging.INFO  # 20
     # Set logging format
     # Set up a specific logger with our desired output level
-    logger = logging.getLogger('logger')
     logger.setLevel(loglevel)
-    if logfilename:
-        # Add the log  file handler to the logger
-        filehandler = logging.handlers.RotatingFileHandler(logfilename, maxBytes=10000000, backupCount=5)
-        formatter = logging.Formatter(
-            "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
-        filehandler.setFormatter(formatter)
-        logger.addHandler(filehandler)
-    streamhandler = logging.StreamHandler()
-    streamhandler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s"))
-    logger.addHandler(streamhandler)
-    logger.debug('Debug Mode Enabled')
-    if not os.path.exists(config_file) and configfile_p:
-        logger.warning("Couln't find %s" % colors.yellow(config_file))
     return 0
 
-
-@cli.command('find',
-             short_help='Retrieve cheat notes from specified cheatfiles according to keywords',
-             epilog="""
-\b
+epilog = """\b
 Examples:
-cheater find -c ~/Documents/cheats.md foo bar baz
-cheater find -c ~/Documents/cheats.md foo bar baz
-cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz
+bt-cheater find -c ~/Documents/cheats.md foo bar baz
+bt-cheater find -c ~/Documents/cheats.md foo bar baz
+bt-cheater -C my_special_config.yaml find -c ~/Documents/cheats.md foo bar baz
 
 If no config file is specified, the tool will attempt to 
 read one from the following locations, in order of precedence:
 
-- /etc/cheater/config.yaml
+- /etc/bt-cheater/config.yaml
+
+- ~/.bt-cheater/config.yaml
 
 - ./config.yaml
-
-- ~/.cheater/config.yaml
-""")
+"""
+@cli.command('find',
+             short_help='Retrieve cheat notes from specified cheatfiles according to keywords',
+             epilog=epilog)
 @click.version_option(version=__version__)
 @click.option('--explode-topics', '-e',
               is_flag=True,
@@ -271,142 +174,48 @@ def find_cheats(**kwargs):
     # Load config defaults
     config = load_config()
     if config is None:
-        logger.error('No valid config file found. Consult README.md')
+        logger.error('No valid config file found!')
+        logger.info(epilog)
         sys.exit(1)
     filetypes = config.search['filters'] if config.search.get('filters') else ['md', 'txt']
-    logger.debug('Saerching against file types %s' % ','.join(filetypes))
-    # Parse parameters
-    search_topics = kwargs['topics']
-    condition = 'any' if kwargs['any'] else 'all'
-    search_body = True if kwargs['search_body'] else False
-    no_pause = kwargs.get('no_pause')
-    if no_pause:
-        pause = False
-    else:
-        pause = True
+    logger.debug('Searching against file types %s' % ','.join(filetypes))
     explode = True if kwargs['explode_topics'] else False
     if kwargs.get('cheatfile'):
-        cheatfiles = []
+        explicit_cheatfiles = []
         if sys.version_info[0] == 2:
             for cf in kwargs['cheatfile']:
-                cheatfiles += glob.glob(os.path.expanduser(cf))
+                explicit_cheatfiles += glob.glob(os.path.expanduser(cf))
         if sys.version_info[0] >= 3:
             for cf in kwargs['cheatfile']:
-                cheatfiles += glob.glob(os.path.expanduser(cf), recursive=True)
+                explicit_cheatfiles += glob.glob(os.path.expanduser(cf), recursive=True)
     else:
-        cheatfiles = []
-    cheatfile_paths = kwargs['cheatfile_path']
+        explicit_cheatfiles = []
+    cheatfile_paths = kwargs.get('cheatfile_path')
     if cheatfile_paths:
         cheatfile_paths = [os.path.expanduser(p) for p in cheatfile_paths] + config.search['paths']
     else:
         cheatfile_paths = [os.path.expanduser(p) for p in config.search['paths']]
-    logger.debug('Cheat file paths set to %s' % ','.join(cheatfile_paths))
-    # Build regular expression
-    search_list = []
-    if condition == 'all':
-        regx = '.*%s'
-        # Account for ALL permutations of the list of search topics
-        search_permutations = list(itertools.permutations(list(search_topics)))
-        for sp in search_permutations:
-            search_list.append('(%s)|' % ''.join([regx % p for p in sp]))
-        search = ''.join(search_list)
-    else:
-        regx = '.*%s|'
-        search = ''.join([regx % t for t in search_topics])
-    search = re.sub('\|$', '', search)
-    logger.debug('Regular expression is: %s' % search)
-    # Compile the regular expression
-    string = re.compile(search)
-    # Initialize defaults
-    matched_topics = []
-    # Warn if search body is enabled
-    if search_body:
-        logger.warning('Search includes cheat body; can\'t yet reliably determine count of matched topics')
+    logger.debug(f"Cheat file paths set to {','.join(cheatfile_paths)}")
+
     # Execution time
     start_time = time.time()
     # If any specified cheatfile paths are directories, walk through and append to cheatfile list
-    for cheatfile in gather_cheatfiles(cfpaths=cheatfile_paths, cftypes=filetypes):
-        if os.path.exists(cheatfile) and not os.path.isdir(cheatfile):
-            try:
-                with io.open(cheatfile, "r", encoding="utf-8") as n:
-                    cheats = n.readlines()
-            except UnicodeDecodeError:
-                try:
-                    with io.open(cheatfile, "r") as n:
-                        cheats = n.readlines()
-                except Exception:
-                    print()
-            cheats_length = len(cheats)
-            topics = [(i, n) for i, n in enumerate(cheats) if n.startswith('# ')]
-            for index, line in enumerate(topics):
-                # Find the corresponding line index
-                s_line_index = topics[index][0]
-                # Skip topics not matching search term (if applicable)
-                cheat_topic = cheats[s_line_index]
-                match_length = len(string.search(cheat_topic).group()) if string.search(cheat_topic) else []
-                if not any([match_length, search_body]):
-                    continue
-                if not search_body:
-                    logger.info(
-                        'Topic search criteria matched against cheat file: {cf}'.format(
-                            cf=colors.emerald(cheatfile)))
-                # Find the next corresponding line index
-                s_next_line_index = cheats_length if index + 1 > len(topics) - 1 else topics[index + 1][0]
-                # Grab the topic headers
-                header_list = ['# %s' % header.strip() for header in cheat_topic.split('# ') if header]
-                headers = ' '.join(sorted(set(header_list), key=header_list.index))
-                # headers = '# %s' % ' # '.join([h for h in headers])
-                # Get the topic's body
-                body = ''.join([l for l in cheats[s_line_index + 1:s_next_line_index] if l])
-                body_matched_strings = string.search(body) if search_body else None
-                if not any([string.search(cheat_topic), body_matched_strings]):
-                    continue
-                try:
-                    if search_body:
-                        body = body_matched_strings.group().encode('utf-8')
-                except Exception:
-                    logger.error('Failed to search body for this topic: {c}'.format(
-                        c=colors.red(cheat_topic)))
-                # utf-8 encoding
-                try:
-                    headers = str(headers.encode('utf-8').decode('utf8'))
-                    body = str(body.encode('utf-8').decode('utf8'))
-                except UnicodeEncodeError:
-                    try:
-                        body = str(body.encode('utf-8'))
-                    except Exception:
-                        logger.error('I had trouble encoding this topic: {c}'.format(
-                            c=colors.red(cheat_topic)))
-                        continue
-                if explode:
-                    output_filename = re.sub("\s|#|:|/|'", "_", headers.split('#')[1].strip()) + '.md'
-                    try:
-                        with io.open(output_filename, "a", encoding="utf-8") as text_file:
-                            print("{h}\n{b}".format(h=colors.purple(headers), b=colors.green(body)))
-                            text_file.write("{h}\n{b}".format(h=headers, b=body))
-                            matched_topics.append(headers)
-                        if pause:
-                            wait = input("PRESS ENTER TO CONTINUE TO NEXT TOPIC or 'q' to quit ")
-                            if wait.lower() == 'q':
-                                sys.exit()
-                    except Exception:
-                        logger.error('Failed to write {h} ... skipping'.format(h=headers))
-                else:
-                    try:
-                        print('{h}\n{b}'.format(h=colors.purple(headers), b=colors.green(body)))
-                        matched_topics.append(headers)
-                        if pause:
-                            wait = input("ENTER => CONTINUE TO NEXT TOPIC or 'q' to quit ")
-                            if wait.lower() == 'q':
-                                sys.exit()                            
-                    except Exception:
-                        logger.error('Failed to process topic ... skipping')
-                        continue
+    cheatfiles = gather_cheatfiles(cfpaths=cheatfile_paths, cftypes=filetypes)
+    cf_processor = CheatFileProcessor(**kwargs)
+
+    if explicit_cheatfiles:
+        for cheatfile in explicit_cheatfiles:
+            if cheatfile:
+                cf_processor.process_cheat_file(cheatfile)
+    else:
+        for cheatfile in cheatfiles:
+            if cheatfile:
+                cf_processor.process_cheat_file(cheatfile)
     end_time = time.time()
     action = "Wrote" if explode else "Retrieved"
-    logger.info('%s %s topic(s) in %0.2f seconds' % (
-        action, len(matched_topics), (end_time - start_time))
-                )
+    logger.info(
+        f'{action} {len(cf_processor.matched_topics)} topic(s) in {(end_time - start_time):.2f} seconds'
+    )
 
 def gather_cheatfiles(**kwargs):
     cheatfile_paths = kwargs.get('cfpaths')
@@ -422,7 +231,8 @@ def gather_cheatfiles(**kwargs):
                             filepath = os.path.join(root, filename)
                             yield filepath
     else:
-      yield cheatfile_paths
+      logger.warning('Could not find any cheat files!')
+      yield ()
 
 if __name__ == '__main__':
     sys.exit(cli(sys.argv[1:]))
