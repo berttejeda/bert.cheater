@@ -76,10 +76,6 @@ Options:
                                 against
   -p, --cheatfile-path TEXT     Manually specify cheat file paths to search
                                 against
-  -L, --local_cheat_cache TEXT  Specify root folder you want to store cheats
-                                as retrieved from git (defaults to ~/.cheater)
-  -F, --force_git_updates       Force updates for cheat repos retrieved via
-                                git
   -a, --any                     Any search term can occur in the topic header
                                 (default is "all")
   -b, --search-body             Search against cheat note content instead of
@@ -103,7 +99,7 @@ Options:
 ## Usage examples
 
 Given: Your config file is configured to search through '~/Documents/notes' 
-for cheat files, that is, your configuration file is ~/.cheater/config.yaml, with contents: <br />
+for cheat files, that is, your configuration file is ~/.bt-cheater/config.yaml, with contents: <br />
 ```yaml
 search:
   paths:
@@ -128,7 +124,7 @@ can help narrow down search results if you specify a search condition.
 
 As such, the default search logic is _all_, where all search terms must occur in the topic header (logically equivalent to AND).
 
-If you want to broaden your search criteria, use the `-a/--any` flag, instructing `cheater` to consider _any_ search term present in the topic header (logically equivalent to OR).
+If you want to broaden your search criteria, use the `-a/--any` flag, instructing `bt-cheater` to consider _any_ search term present in the topic header (logically equivalent to OR).
 
 # How do I get started?
 

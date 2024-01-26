@@ -152,12 +152,6 @@ read one from the following locations, in order of precedence:
               type=str, nargs=1,
               help='Manually specify cheat file paths to search against',
               multiple=True)
-@click.option('--local_cheat_cache', '-L',
-              default='~/.cheater',
-              help='Specify root folder you want to store cheats as retrieved from git (defaults to ~/.cheater)')
-@click.option('--force_git_updates', '-F',
-              is_flag=True,
-              help='Force updates for cheat repos retrieved via git')
 @click.option('--any', '-a',
               is_flag=True,
               help='Any search term can occur in the topic header (default is "all")')
