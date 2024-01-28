@@ -36,7 +36,7 @@ The whitespace padding is optional and improves readability.
 
 # Configuration file
 
-`cheater` can read yaml config files formatted as:
+`bt-cheater` can read yaml config files formatted as:
 
 ```
 search:
