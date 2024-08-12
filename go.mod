@@ -2,6 +2,8 @@ module github.com/berttejeda/bt-cheater
 
 go 1.22.6
 
+replace github.com/berttejeda/bert.cheater.go => .
+
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/fatih/color v1.17.0
