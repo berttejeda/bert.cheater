@@ -3,14 +3,14 @@ package main
 import (
 		"fmt"
     "os"
-    config "github.com/berttejeda/bt-cheater/config"
-    findCMD "github.com/berttejeda/bt-cheater/commands/find"
+    config "github.com/berttejeda/bert.cheater/config"
+    findCMD "github.com/berttejeda/bert.cheater/commands/find"
     "github.com/alecthomas/kingpin/v2"
     logger "github.com/sirupsen/logrus"
 )
 
 var (
-  app         = kingpin.New("bt-cheater", "Search through your markdown notes by keyword")
+  app         = kingpin.New("bert.cheater", "Search through your markdown notes by keyword")
   verbose     = app.Flag("verbose", "Enable verbose mode").Short('v').Bool()
   debug       = app.Flag("debug", "Enable debug mode").Short('d').Bool()
   jsonLogging = app.Flag("json-logging", "Enable json log format").Short('J').Bool()

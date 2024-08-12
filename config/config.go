@@ -4,7 +4,7 @@ import (
   "fmt"
 	logger "github.com/sirupsen/logrus"
   "github.com/spf13/viper"
-  utils "github.com/berttejeda/bt-cheater/utils"
+  utils "github.com/berttejeda/bert.cheater/utils"
 )
 
 type Search struct {
@@ -23,9 +23,9 @@ func InitOptions() (Options, error) {
 	viper.SetConfigName("config") // options file name without extension
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./")
-	configUserPath, _ := utils.FSOExpandUser("~/.bt-cheater")
+	configUserPath, _ := utils.FSOExpandUser("~/.bert.cheater")
 	viper.AddConfigPath(configUserPath) // options file path
-	viper.AddConfigPath("/etc/bt-cheater")
+	viper.AddConfigPath("/etc/bert.cheater")
 	viper.AutomaticEnv()             // read value ENV variable
 
 	err := viper.ReadInConfig()

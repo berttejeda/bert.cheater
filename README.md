@@ -36,7 +36,7 @@ The whitespace padding is optional and improves readability.
 
 # Configuration file
 
-`bt-cheater` can read yaml config files formatted as:
+`bert.cheater` can read yaml config files formatted as:
 
 ```
 search:
@@ -51,26 +51,18 @@ any: false # Match any vs all topics, not yet implemented
 nopause: false # If true, don't pause between matched topics
 ```
 
-These are the settings recognized by the tool:
-
-| Key     | Value                        |
-|:--------|:-----------------------------|
-| paths   | Where to search for notes    |
-| filters | Files to filter against      |
-| pause.  | Pause between matched topics |
-
 If no config file is specified, the tool will attempt to read one from the following locations, in order of precedence:
 
-- /etc/bt-cheater/config.yaml
+- /etc/bert.cheater/config.yaml
 - ./config.yaml
-- ~/.bt-cheater/config.yaml
+- ~/.bert.cheater/config.yaml
 
 # Usage
 
-`bt-cheater --help`:
+`bert.cheater --help`:
 
 ```
-usage: bt-cheater [<flags>] <command> [<args> ...]
+usage: bert.cheater [<flags>] <command> [<args> ...]
 
 Search through your markdown notes by keyword
 
@@ -89,10 +81,10 @@ find [<flags>] [<args>...]
     Retrieve cheat notes and display in terminal
 ```
 
-`bt-cheater find --help`:
+`bert.cheater find --help`:
 
 ```
-usage: bt-cheater find [<flags>] [<args>...]
+usage: bert.cheater find [<flags>] [<args>...]
 
 Retrieve cheat notes and display in terminal
 
@@ -114,7 +106,7 @@ Args:
 ## Usage examples
 
 Given: Your config file is configured to search through '~/Documents/notes' 
-for cheat files, that is, your configuration file is ~/.bt-cheater/config.yaml, with contents: <br />
+for cheat files, that is, your configuration file is ~/.bert.cheater/config.yaml, with contents: <br />
 ```yaml
 search:
   paths: # Where to search for notes
@@ -125,11 +117,11 @@ search:
     - md
     - txt
 any: false # Match any vs all topics, not yet implemented
-nopause: true # Don't pause between matched topics
+nopause: false # If true, don't pause between matched topics
 ```
 
 * You want to find topic headers containing the words _foo_ _bar_ and _baz_
-    * `bt-cheater find foo bar baz`
+    * `bert.cheater find foo bar baz`
 
 # Tips
 
@@ -138,11 +130,11 @@ can help narrow down search results if you specify a search condition.
 
 As such, the default search logic is _all_, where all search terms must occur in the topic header (logically equivalent to AND).
 
-If you want to broaden your search criteria, use the `-a/--any` flag, instructing `bt-cheater` to consider _any_ search term present in the topic header (logically equivalent to OR).
+Not Yet Implemented: If you want to broaden your search criteria, use the `-a/--any` flag, instructing `bert.cheater` to consider _any_ search term present in the topic header (logically equivalent to OR).
 
 # How do I get started?
 
 ## Installation
 
 * Install via `go install`<br />
-`go install github.com/berttejeda/bert.cheater.go@latest`
+`go install github.com/berttejeda/bert.cheater@latest`

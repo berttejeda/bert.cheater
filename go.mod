@@ -1,4 +1,4 @@
-module github.com/berttejeda/bt-cheater
+module github.com/berttejeda/bert.cheater
 
 go 1.22.6
 

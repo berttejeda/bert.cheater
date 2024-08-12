@@ -1,7 +1,7 @@
 package findCMD
 
 import (
-	appConfig "github.com/berttejeda/bt-cheater/config"
+	appConfig "github.com/berttejeda/bert.cheater/config"
 	"bufio"
 	color "github.com/fatih/color"
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	utils "github.com/berttejeda/bt-cheater/utils"
+	utils "github.com/berttejeda/bert.cheater/utils"
 )
 
 var headersPattern, err = regexp.Compile("^# ")
