@@ -71,6 +71,8 @@ Flags:
   -v, --[no-]verbose       Enable verbose mode
   -d, --[no-]debug         Enable debug mode
   -J, --[no-]json-logging  Enable json log format
+  -c, --config=CONFIG      Override Config File to use
+      --[no-]version       Show application version.
 
 Commands:
 help [<command>...]
@@ -93,6 +95,8 @@ Flags:
   -v, --[no-]verbose       Enable verbose mode
   -d, --[no-]debug         Enable debug mode
   -J, --[no-]json-logging  Enable json log format
+  -c, --config=CONFIG      Override Config File to use
+      --[no-]version       Show application version.
   -a, --[no-]any           Match 'any' topic as opposed to 'all'
   -n, --[no-]no-pause      Don't pause between matched topics
   -f, --filters=md... ...  File extensions to math when searching
