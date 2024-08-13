@@ -1,0 +1,8 @@
+search:
+  paths: # Where to search for notes
+    - .
+  filters: # Files to filter against
+    - md
+    - txt
+any: false # Match any vs all topics, not yet implemented
+nopause: false # If true, don't pause between matched topics

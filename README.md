@@ -38,7 +38,7 @@ The whitespace padding is optional and improves readability.
 
 `bert.cheater` can read yaml config files formatted as:
 
-```
+```yaml
 search:
   paths: # Where to search for notes
     - ~/Documents/workspace/tmp
@@ -105,23 +105,7 @@ Args:
 
 ## Usage examples
 
-Given: Your config file is configured to search through '~/Documents/notes' 
-for cheat files, that is, your configuration file is ~/.bert.cheater/config.yaml, with contents: <br />
-```yaml
-search:
-  paths: # Where to search for notes
-    - ~/Documents/workspace/tmp
-    - ~/Documents/workspace/tmp2
-    - ~/Documents/workspace/tmp3
-  filters: # Files to filter against
-    - md
-    - txt
-any: false # Match any vs all topics, not yet implemented
-nopause: false # If true, don't pause between matched topics
-```
-
-* You want to find topic headers containing the words _foo_ _bar_ and _baz_
-    * `bert.cheater find foo bar baz`
+For your convenience, see the [examples](examples) directory.
 
 # Tips
 
@@ -138,3 +122,4 @@ Not Yet Implemented: If you want to broaden your search criteria, use the `-a/--
 
 * Install via `go install`<br />
 `go install github.com/berttejeda/bert.cheater@latest`
+* Download a [release](https://github.com/berttejeda/bert.cheater/releases)
