@@ -9,7 +9,6 @@
 - [Tips](#tips)
 - [How do I get started?](#how-do-i-get-started)
   - [Installation](#installation)
-    - [Using Pip](#using-pip)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
