@@ -44,3 +44,7 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+
+git:
+  ignore_tags:
+    - latest
