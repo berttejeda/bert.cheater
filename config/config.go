@@ -16,22 +16,26 @@ type Options struct {
  Search Search  `mapstructure:"search"`
  NoPauseBetweenTopics bool `mapstructure:"pause"`
  MatchAny bool `mapstructure:"any"`
+ ConfigFileUsed string
 }
 
-func InitOptions() (Options, error) {
+func InitOptions(configFile string) (Options, error) {
 
-	viper.SetConfigName("config") // options file name without extension
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./")
-	configUserPath, _ := utils.FSOExpandUser("~/.bert.cheater")
-	viper.AddConfigPath(configUserPath) // options file path
-	viper.AddConfigPath("/etc/bert.cheater")
-	viper.AutomaticEnv()             // read value ENV variable
+	if len(configFile) > 0 {
+		viper.SetConfigFile(configFile)
+	} else {
+		viper.SetConfigName("config") // options file name without extension
+		viper.SetConfigType("yaml")
+		viper.AddConfigPath("./")
+		configUserPath, _ := utils.FSOExpandUser("~/.bert.cheater")
+		viper.AddConfigPath(configUserPath) // options file path
+		viper.AddConfigPath("/etc/bert.cheater")
+		viper.AutomaticEnv()             // read value ENV variable
+	}
 
 	err := viper.ReadInConfig()
 
 	logger.Debug("Using options file: ", viper.ConfigFileUsed())
-
 
 	if err != nil {
 	  logger.Warning("Failed to parse options file,error was ", err, " Using defaults")
@@ -43,6 +47,8 @@ func InitOptions() (Options, error) {
 		fmt.Println(err)
 		return options, err
 	}
+
+	options.ConfigFileUsed = viper.ConfigFileUsed()
 
 	return options, err
 

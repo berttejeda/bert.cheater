@@ -91,7 +91,7 @@ func printMatchedLines(cheatFile string, lines []string, matchedHeaderLineNumber
 	bodyColor := color.New(color.FgGreen)
 
 	if len(matchedHeaderLineNumbers) > 0 {
-		logger.Info("Matched against", cheatFile)
+		logger.Info("Matched ", cheatFile)
 	}
 
 	// Build the Map of lines to be printed

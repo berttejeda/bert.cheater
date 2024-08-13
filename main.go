@@ -14,6 +14,7 @@ var (
   verbose     = app.Flag("verbose", "Enable verbose mode").Short('v').Bool()
   debug       = app.Flag("debug", "Enable debug mode").Short('d').Bool()
   jsonLogging = app.Flag("json-logging", "Enable json log format").Short('J').Bool()
+  configFile  = app.Flag("config", "Override Config File to use").Short('c').String()
   find        = app.Command("find", "Retrieve cheat notes and display in terminal")
   any         = find.Flag("any", "Match 'any' topic as opposed to 'all'").Short('a').Bool()
   nopause     = find.Flag("no-pause", "Don't pause between matched topics").Short('n').Bool()
@@ -31,18 +32,18 @@ func main() {
 	// Enable Debug Logging if applicable
 	if *debug {
 		logger.SetLevel(logger.DebugLevel)
-	}
-
-	options, err := config.InitOptions()
-
-	if err != nil {
-	    logger.Error(err)
-	} 		
+	}	
 
 	// Enable JSON Logging if applicable
 	if *jsonLogging {
 		logger.SetFormatter(&logger.JSONFormatter{})
 	}
+
+	options, err := config.InitOptions(*configFile)
+
+	if err != nil {
+	    logger.Error(err)
+	} 	
 
   switch cli {
 
@@ -66,7 +67,7 @@ func main() {
 			NoPauseBetweenTopics = true
 		} else if options.NoPauseBetweenTopics {
 			NoPauseBetweenTopics = true
-		}		
+		}
 
   	appConfig := config.InitConfig(*topics).WithFileExtensions(*filters).WithSearchPaths(options.Search.Paths, *paths).WithNoPause(NoPauseBetweenTopics).WithMatchAny(MatchAny)
 
