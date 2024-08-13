@@ -1,17 +1,17 @@
 package findCMD
 
 import (
-	appConfig "github.com/berttejeda/bert.cheater/config"
 	"bufio"
-	color "github.com/fatih/color"
 	"fmt"
+	appConfig "github.com/berttejeda/bert.cheater/config"
+	utils "github.com/berttejeda/bert.cheater/utils"
+	color "github.com/fatih/color"
 	logger "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
-	utils "github.com/berttejeda/bert.cheater/utils"
 )
 
 var headersPattern, err = regexp.Compile("^# ")
@@ -86,6 +86,7 @@ func printMatchedLines(cheatFile string, lines []string, matchedHeaderLineNumber
 	linePrintMapArray := make([]linePrintMap, linePrintMapArraySize)
 	var currHeaderLineNumberIndex int
 	var nextHeaderLineNumber int
+	var lastLineNumber int = allLineNumbers[len(allLineNumbers)-1]
 
 	headerColor := color.New(color.FgMagenta)
 	bodyColor := color.New(color.FgGreen)
@@ -106,11 +107,10 @@ func printMatchedLines(cheatFile string, lines []string, matchedHeaderLineNumber
 		}
 		lastHeaderLineNumber := allHeaderLineNumbers[len(allHeaderLineNumbers)-1]
 		lastMatchedHeaderLineNumber := matchedHeaderLineNumbers[len(matchedHeaderLineNumbers)-1]
-		lastLine := allLineNumbers[len(allLineNumbers)-1]
 		if headerLineNumber != lastMatchedHeaderLineNumber || headerLineNumber < lastHeaderLineNumber {
 			linePrintMapArray[index] = linePrintMap{LowerBoundary: headerLineNumber, UpperBoundary: nextHeaderLineNumber}
 		} else {
-			linePrintMapArray[index] = linePrintMap{LowerBoundary: headerLineNumber, UpperBoundary: lastLine}
+			linePrintMapArray[index] = linePrintMap{LowerBoundary: headerLineNumber, UpperBoundary: lastLineNumber}
 		}
 	}
 
@@ -123,7 +123,7 @@ func printMatchedLines(cheatFile string, lines []string, matchedHeaderLineNumber
 		for _, linePrintMap := range linePrintMapArray {
 			if isMatch && isHeader && lineNumber >= linePrintMap.LowerBoundary && lineNumber < linePrintMap.UpperBoundary {
 				headerColor.Println(line)
-			} else if !isHeader && lineNumber >= linePrintMap.LowerBoundary && lineNumber < linePrintMap.UpperBoundary {
+			} else if !isHeader && lineNumber >= linePrintMap.LowerBoundary && lineNumber <= linePrintMap.UpperBoundary {
 				bodyColor.Println(line)
 			}
 			if lineNumber == linePrintMap.UpperBoundary && lineNumber != 1 {
