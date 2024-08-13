@@ -25,7 +25,7 @@ var (
 
 func main() {
 
-	app.UsageTemplate(kingpin.DefaultUsageTemplate).Version("0.2.1").Author("Bert Tejeda")
+	app.UsageTemplate(kingpin.DefaultUsageTemplate).Version("v0.2.1").Author("Bert Tejeda")
 
 	cli := kingpin.MustParse(app.Parse(os.Args[1:]))
 
