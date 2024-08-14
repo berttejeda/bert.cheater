@@ -14,7 +14,7 @@
 
 # Introduction
 
-This is a Golang rewrite of [bert.cheater](https://github.com/berttejeda/bert.cheater), a general-purpose, command-line notes tool written in python.
+This is a Golang rewrite of the python equivalent [bert.cheater.python](https://github.com/berttejeda/bert.cheater.python).
 
 The tool provides a way search through snippets of text stored in plain-text files using keywords, and all from the command-line.
 
